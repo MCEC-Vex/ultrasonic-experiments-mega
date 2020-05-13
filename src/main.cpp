@@ -11,7 +11,7 @@
 
 struct Sensor
 {
-    NewPing sensor;
+    NewPing* sensor;
     float offset = 0.0;
     bool enable = false;
     unsigned long interval = 0;
@@ -82,7 +82,7 @@ void setup()
 
     // Set up servo and sensor(s)
     servo.attach(SERVO_PIN);
-    sensors[0].sensor = NewPing(SENSOR_1_TRIGGER, SENSOR_1_ECHO);
+    sensors[0].sensor = new NewPing(SENSOR_1_TRIGGER, SENSOR_1_ECHO);
 
     // Set up serial for packet transfer
     Serial1.begin(115200);
@@ -101,7 +101,7 @@ void loop()
         if(sensors[i].enable && (sensors[i].interval % (millis() + sensors[i].timingOffset)) == 0)
         {
             //TODO switch to event-based code
-            unsigned int microseconds = sensors[i].sensor.ping();
+            unsigned int microseconds = sensors[i].sensor->ping();
 
             // Send the packet
             PacketHeader header;
