@@ -9,7 +9,8 @@ enum PacketType : uint8_t
     CAPABILITIES, // Sent by the Mega in response to initialization
     SERVO_POS, // Sent by the ESP32 to set a servo position
     POLL_RATE, // Sent the ESP32 to set a poll rate for an ultrasonic sensor
-    SENSOR_READING // Sent by the Mega upon a sensor reading or timeout
+    SENSOR_READING, // Sent by the Mega upon a sensor reading or timeout
+    PAUSE_INPUT // Sent to pause input for 1 second for non-COBS debug logging
 };
 
 struct PacketHeader
@@ -20,31 +21,31 @@ struct PacketHeader
 struct CapabilitiesPacket
 {
     bool hasMotor;
-    unsigned char sensorCount;
+    uint8_t sensorCount;
 };
 
 struct UltrasonicPlacement
 {
-    float offset;
+    uint32_t offset;
 };
 
 struct ServoPosPacket
 {
-    unsigned char position;
+    uint8_t position;
 };
 
 struct PollRatePacket
 {
-    unsigned char sensor;
+    uint8_t sensor;
     bool enable;
-    unsigned long interval;
-    unsigned long offset;
+    uint32_t interval;
+    uint32_t offset;
 };
 
 struct SensorReadingPacket
 {
-    unsigned char sensor;
-    unsigned int microseconds;
+    uint8_t sensor;
+    uint8_t microseconds;
 };
 
 #endif //SERIAL_DEFINITIONS_H
