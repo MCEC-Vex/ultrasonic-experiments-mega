@@ -35,6 +35,31 @@ void sendCapabilities()
     Serial.println();
 }
 
+void sendMeasurement(int sensor, unsigned int microseconds)
+{
+    Serial.print("measurement,");
+    Serial.print(sensor);
+    Serial.print(",");
+    Serial.println(microseconds);
+}
+
+// From https://arduino.stackexchange.com/a/1237
+String getValue(String data, char separator, int index)
+{
+    int found = 0;
+    int strIndex[] = { 0, -1 };
+    int maxIndex = data.length() - 1;
+
+    for (int i = 0; i <= maxIndex && found <= index; i++) {
+        if (data.charAt(i) == separator || i == maxIndex) {
+            found++;
+            strIndex[0] = strIndex[1] + 1;
+            strIndex[1] = (i == maxIndex) ? i+1 : i;
+        }
+    }
+    return found > index ? data.substring(strIndex[0], strIndex[1]) : "";
+}
+
 void setup()
 {
     Serial.begin(115200);
@@ -57,6 +82,21 @@ void loop()
         {
             sendCapabilities();
         }
+        else if(line == "ping")
+        {
+            Serial.println("pong");
+        }
+        else if(line.startsWith("poll,"))
+        {
+            int sensor = getValue(line, ',', 1).toInt();
+            if(sensor < 0 || sensor >= SENSOR_COUNT)
+            {
+                continue;
+            }
+            sensors[sensor].enable = getValue(line, ',', 2) == "true";
+            sensors[sensor].interval = getValue(line, ',', 3).toInt();
+            sensors[sensor].timingOffset = getValue(line, ',', 4).toInt();
+        }
     }
 
     // Go through all ultrasonic sensors
@@ -68,10 +108,7 @@ void loop()
             sensors[i].lastTriggered = millis();
             //TODO switch to event-based code
             unsigned int microseconds = sensors[i].sensor->ping();
-            Serial.print("Sensor ");
-            Serial.print(i);
-            Serial.print(" got ");
-            Serial.println(microseconds);
+            sendMeasurement(i, microseconds);
         }
     }
 }
