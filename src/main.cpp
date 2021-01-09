@@ -37,7 +37,7 @@ void sendCapabilities()
 
 void sendMeasurement(int sensor, unsigned int microseconds)
 {
-    Serial.print("measurement,");
+    Serial.print("m,");
     Serial.print(sensor);
     Serial.print(",");
     Serial.println(microseconds);
